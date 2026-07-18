@@ -8,6 +8,11 @@ export async function authenticate(
   formData: FormData,
 ) {
   try {
+    await new Promise((e) => {
+      setTimeout(() => {
+        e(0);
+      }, 1000);
+    });
     await signIn("credentials", {
       ...Object.fromEntries(formData),
       redirectTo: prevState?.callbackUrl || "/dashboard",
