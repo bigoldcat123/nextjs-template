@@ -4,13 +4,13 @@ import { eq } from "drizzle-orm";
 import "server-only";
 export async function getUserByUsername(username: string) {
   try {
-    const res = await db
+    const [user] = await db
       .select()
       .from(usersTable)
       .where(eq(usersTable.username, username));
 
-    if (res.length != 0) {
-      return res[0];
+    if (user) {
+      return user;
     }
   } catch (e) {
     console.error(e);
