@@ -12,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 
 export default function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
   const [state, action, isPending] = useActionState(authenticate, {
