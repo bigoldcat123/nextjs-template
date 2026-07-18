@@ -5,10 +5,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [credentials],
   callbacks: {
     async authorized({ auth }) {
+      // if (request.nextUrl.pathname.startsWith("/dashboard")) {
       const session = auth?.user;
       if (!session) {
         return false;
       }
+      // }
+
       return true;
     },
     async session({ session, token }) {

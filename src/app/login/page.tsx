@@ -1,22 +1,14 @@
-import { signIn } from "@/auth";
+import LoginForm from "@/components/login-form";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ callbackUrl: string }>;
+}) {
+  const { callbackUrl } = await searchParams;
   return (
     <>
-      <form
-        action={async (formdata) => {
-          "use server";
-          await signIn("credentials", formdata,);
-        }}
-      >
-        <label htmlFor="username">
-          username: <input id="username" name="username" />
-        </label>
-        <label htmlFor="password">
-          username: <input id="password" name="password" />
-        </label>
-        <button type="submit">login</button>
-      </form>
+      <LoginForm callbackUrl={callbackUrl} />
     </>
   );
 }
