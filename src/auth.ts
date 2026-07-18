@@ -3,6 +3,25 @@ import { credentials } from "./auth-providers/credential";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [credentials],
+  callbacks: {
+    async authorized({ auth }) {
+      const session = auth?.user;
+      if (!session) {
+        return false;
+      }
+      return true;
+    },
+    async session({ session, token }) {
+      console.log(token);
+      if (token.sub) {
+        session.user.id = token.sub;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
+  },
 });
 
 declare module "next-auth" {
