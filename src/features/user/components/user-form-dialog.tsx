@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { createUserAction, updateUserAction } from "../user-action";
 
 type UserFormDialogProps = {
@@ -34,6 +34,11 @@ export function UserFormDialog({
 }: UserFormDialogProps) {
   const isEdit = !!initialData;
   const [state, action, isPending] = useActionState(onSubmitAction, undefined);
+  useEffect(() => {
+    if (state?.status == "ok") {
+      onOpenChangeAction(false);
+    }
+  }, [state, onOpenChangeAction]);
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
       <DialogContent className="sm:max-w-106.25">
@@ -88,9 +93,9 @@ export function UserFormDialog({
           </div>
           <Input hidden name="id" defaultValue={initialData?.id} />
           <DialogFooter>
-            <Button disabled={isPending} type="submit">
+            <SubmitButton isPending={isPending}>
               {isEdit ? "保存" : "创建"}
-            </Button>
+            </SubmitButton>
           </DialogFooter>
         </form>
       </DialogContent>

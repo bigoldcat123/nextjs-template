@@ -147,7 +147,7 @@ export function UserTable({
         <UserDeleteDialog
           open={deleteOpen}
           onOpenChangeAction={setDeleteOpen}
-          onConfirmAction={deleteUserAction}
+          onConfirmAction={onDeleteAction}
           username={selectedUser.username}
           userId={selectedUser.id}
         />

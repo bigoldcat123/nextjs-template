@@ -4,13 +4,13 @@ import { db } from "@/db";
 import { users } from "@/db/schema";
 import { count, eq } from "drizzle-orm";
 import {
+  AppError,
   DatabaseError,
   EmailAlreadyExistsError,
   InvalidUserInputError,
   UserNotFoundError,
   UsernameAlreadyExistsError,
 } from "./user-errors";
-
 /**
  * 创建用户输入类型
  */
@@ -44,25 +44,35 @@ export const userService = {
       throw new InvalidUserInputError("password", "不能为空");
     }
 
-    // 检查用户名是否已存在
-    const existingUsername = await this.findByUsername(input.username);
-
-    if (existingUsername) {
-      throw new UsernameAlreadyExistsError(input.username);
-    }
-
-    // 检查邮箱是否已存在
-    if (input.email) {
-      const existingEmail = await this.findByEmail(input.email);
-      if (existingEmail) {
-        throw new EmailAlreadyExistsError(input.email);
-      }
-    }
-
     try {
+      // 检查用户名是否已存在
+      const existingUsername = await db.query.users.findFirst({
+        where: {
+          username: input.username,
+        },
+      });
+
+      if (existingUsername) {
+        throw new UsernameAlreadyExistsError(input.username);
+      }
+
+      // 检查邮箱是否已存在
+      if (input.email) {
+        const existingEmail = await db.query.users.findFirst({
+          where: {
+            email: input.email,
+          },
+        });
+        if (existingEmail) {
+          throw new EmailAlreadyExistsError(input.email);
+        }
+      }
       const [user] = await db.insert(users).values(input).returning();
       return user;
     } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
       throw new DatabaseError("创建用户", error);
     }
   },

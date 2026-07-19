@@ -2,8 +2,6 @@ import "server-only";
 
 import { userService } from "./user-service";
 import { sleep } from "@/lib/utils";
-import { cacheTag } from "next/cache";
-
 /**
  * 根据 ID 查找用户，不存在则抛出异常
  */

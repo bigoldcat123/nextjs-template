@@ -5,6 +5,7 @@ import { userService } from "@/features/user/user-service";
 import { z } from "zod";
 import { AppError } from "./user-errors";
 import type { ActionState } from "@/types";
+import { sleep } from "@/lib/utils";
 
 const createUserSchema = z.object({
   username: z.string().min(1, "用户名不能为空"),
@@ -25,6 +26,7 @@ export async function createUserAction(preState: ActionState, formData: FormData
   const result = createUserSchema.safeParse(
     Object.fromEntries(formData.entries()),
   );
+  await sleep(1000)
 
   if (!result.success) {
     return { status: "error", message: result.error.issues[0].message };
@@ -34,6 +36,7 @@ export async function createUserAction(preState: ActionState, formData: FormData
     await userService.create(result.data);
   } catch (e) {
     if (e instanceof AppError) {
+      console.error(e)
       return { status: "error", message: e.message };
     } else {
       return { status: "error", message: "unknow Error!" };
@@ -49,6 +52,7 @@ export async function updateUserAction(preState: ActionState, formData: FormData
     Object.fromEntries(formData.entries()),
   );
 
+  await sleep(1000)
   if (!result.success) {
     return { status: "error", message: result.error.issues[0].message };
   }

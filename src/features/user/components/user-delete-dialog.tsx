@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { SubmitButton } from "@/components/submit-button";
 import {
   Dialog,
   DialogContent,
@@ -67,13 +68,14 @@ export function UserDeleteDialog({
           <Button variant="outline" onClick={() => onOpenChangeAction(false)}>
             取消
           </Button>
-          <Button
-            disabled={isPending}
+          <SubmitButton
+            type="button"
+            isPending={isPending}
             variant="destructive"
             onClick={onConfirm}
           >
             删除
-          </Button>
+          </SubmitButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>
