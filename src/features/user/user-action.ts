@@ -47,7 +47,7 @@ export async function createUserAction(
   return { error: undefined };
 }
 
-export async function updateUser(
+export async function updateUserAction(
   preState: { error?: string },
   formData: FormData,
 ) {
@@ -74,7 +74,7 @@ export async function updateUser(
   return { error: undefined };
 }
 
-export async function deleteUser(id: string) {
+export async function deleteUserAction(id: string) {
   try {
     await userService.delete(id);
   } catch (e) {

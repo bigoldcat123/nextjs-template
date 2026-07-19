@@ -1,6 +1,6 @@
 import * as userQuery from "@/features/user/user-query";
 import { UserTable } from "@/features/user/components/user-table";
-import { updateUser, deleteUser } from "@/features/user/user-action";
+import { updateUserAction, deleteUserAction } from "@/features/user/user-action";
 
 type UserTableServerProps = {
   page: number;
@@ -16,8 +16,8 @@ export async function UserTableServer({
   return (
     <UserTable
       {...result}
-      onUpdateAction={updateUser}
-      onDeleteAction={deleteUser}
+      onUpdateAction={updateUserAction}
+      onDeleteAction={deleteUserAction}
     />
   );
 }

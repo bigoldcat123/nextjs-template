@@ -12,15 +12,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useActionState } from "react";
+import { createUserAction, updateUserAction } from "../user-action";
 
 type UserFormDialogProps = {
   open: boolean;
   onOpenChangeAction: (open: boolean) => void;
-  onSubmitAction: (
-    preState: { error?: string },
-    data: FormData,
-  ) => Promise<{ error?: string }>;
+  onSubmitAction: typeof updateUserAction | typeof createUserAction;
   initialData?: {
+    id: string;
     username: string;
     email?: string;
     displayName?: string;
@@ -39,7 +38,7 @@ export function UserFormDialog({
   });
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25">
         <form action={action}>
           <DialogHeader>
             <DialogTitle>{isEdit ? "编辑用户" : "创建用户"}</DialogTitle>
@@ -47,6 +46,11 @@ export function UserFormDialog({
               {isEdit ? "更新用户信息" : "填写以下信息以创建新用户"}
             </DialogDescription>
           </DialogHeader>
+          {state?.error && (
+            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive border border-destructive/20">
+              {state.error}
+            </div>
+          )}
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="username">用户名</Label>
@@ -84,8 +88,11 @@ export function UserFormDialog({
               />
             </div>
           </div>
+          <Input hidden name="id" defaultValue={initialData?.id} />
           <DialogFooter>
-            <Button type="submit">{isEdit ? "保存" : "创建"}</Button>
+            <Button disabled={isPending} type="submit">
+              {isEdit ? "保存" : "创建"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

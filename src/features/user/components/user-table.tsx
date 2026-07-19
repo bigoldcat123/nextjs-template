@@ -20,7 +20,7 @@ import {
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { UserFormDialog } from "./user-form-dialog";
 import { UserDeleteDialog } from "./user-delete-dialog";
-import { deleteUser } from "../user-action";
+import { deleteUserAction } from "../user-action";
 
 type User = {
   id: string;
@@ -147,6 +147,7 @@ export function UserTable({
             username: selectedUser.username,
             email: selectedUser.email || undefined,
             displayName: selectedUser.displayName,
+            id:selectedUser.id
           }}
         />
       )}
@@ -155,7 +156,7 @@ export function UserTable({
         <UserDeleteDialog
           open={deleteOpen}
           onOpenChangeAction={setDeleteOpen}
-          onConfirmAction={deleteUser}
+          onConfirmAction={deleteUserAction}
           username={selectedUser.username}
           userId={selectedUser.id}
         />
