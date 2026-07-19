@@ -40,8 +40,7 @@ export async function findAll() {
  * 分页查询用户
  */
 export async function findPaginated(page: number = 1, pageSize: number = 10) {
-  "use cache";
-  cacheTag("users");
+
   await sleep(1000);
   return await userService.findPaginated(page, pageSize);
 }

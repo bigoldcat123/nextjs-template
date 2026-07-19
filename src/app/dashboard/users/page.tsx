@@ -3,14 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users } from "lucide-react";
 import { UserTableServer } from "@/features/user/components/user-table-server";
+import { PaginationBar } from "@/features/user/components/pagination-bar";
 
 export default async function UsersPage({
   searchParams,
 }: {
   searchParams: Promise<{ page: string; pageSize: string }>;
 }) {
-  const page = searchParams.then((x) => Number(x.page) ?? 1);
-  const pageSize = searchParams.then((x) => Number(x.pageSize) ?? 1);
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const pageSize = Number(params.pageSize) || 10;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -26,8 +29,11 @@ export default async function UsersPage({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Suspense fallback={<UserTableSkeleton />}>
-            <UserTableServer pageSize={pageSize} page={page} />
+          <Suspense key={page} fallback={<UserTableSkeleton />}>
+            <UserTableServer page={page} pageSize={pageSize} />
+          </Suspense>
+          <Suspense>
+            <PaginationBar/>
           </Suspense>
         </CardContent>
       </Card>
