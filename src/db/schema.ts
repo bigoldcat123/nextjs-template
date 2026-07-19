@@ -16,7 +16,6 @@ export const users = pgTable("users", {
   displayName: varchar({ length: 255 }).notNull().default("SomeRandomUser"),
   createdAt: timestamp("create_at").notNull().defaultNow(),
 });
-
 // ── 角色表 ──
 export const roles = pgTable("roles", {
   id: uuid("id").primaryKey().defaultRandom(),
