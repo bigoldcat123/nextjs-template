@@ -6,6 +6,7 @@ import { z } from "zod";
 import { AppError } from "./user-errors";
 import type { ActionState } from "@/types";
 import { sleep } from "@/lib/utils";
+import { auth } from "@/auth";
 
 const createUserSchema = z.object({
   username: z.string().min(1, "用户名不能为空"),
@@ -23,6 +24,7 @@ const updateUserSchema = z.object({
 });
 
 export async function createUserAction(preState: ActionState, formData: FormData): Promise<ActionState> {
+
   const result = createUserSchema.safeParse(
     Object.fromEntries(formData.entries()),
   );

@@ -24,22 +24,23 @@ export const credentials = Credentials({
   },
   authorize: async (credentials) => {
     const credentialsParsed = await userSchema.parseAsync(credentials);
-    const user = await db
-      .select()
-      .from(users)
-      .where(
-        and(
-          eq(users.username, credentialsParsed.username),
-          eq(users.password, credentialsParsed.password),
-        ),
-      );
-    if (user.length == 0) {
+    const user = await db.query.users.findFirst({
+      where: {
+        OR: [
+          { username: credentialsParsed.username },
+          { password: credentialsParsed.password },
+        ],
+      },
+    });
+    if (!user) {
       // No user found, so this is their first attempt to login
       // Optionally, this is also the place you could do a user registration
       throw new Error("Invalid credentials.");
     }
 
     // return user object with their profile data
-    return { id: "id" + user[0].id.toString(), name: user[0].username,email:"1233" };
+    return {
+      id: user.id.toString(),
+    };
   },
 });

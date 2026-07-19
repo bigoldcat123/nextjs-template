@@ -15,7 +15,6 @@ import { LogOut } from "lucide-react";
 
 export function UserNav() {
   const { data: session } = useSession();
-
   const user = session?.user;
   const userName = user?.name || user?.email || "User";
   const userImage = user?.image || "";

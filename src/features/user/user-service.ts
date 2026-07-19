@@ -141,7 +141,9 @@ export const userService = {
         throw new EmailAlreadyExistsError(input.email);
       }
     }
-
+    if (input.password?.length == 0) {
+      input.password = undefined;
+    }
     try {
       const [user] = await db
         .update(users)
