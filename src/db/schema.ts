@@ -14,6 +14,7 @@ export const users = pgTable("users", {
   email: varchar({ length: 255 }).unique(),
   password: varchar({ length: 255 }).notNull(),
   displayName: varchar({ length: 255 }).notNull().default("SomeRandomUser"),
+  profile: varchar({ length: 255 }),
   createdAt: timestamp("create_at").notNull().defaultNow(),
 });
 // ── 角色表 ──
