@@ -1,34 +1,47 @@
-// actions/auth.ts
 "use server";
-import { signIn } from "@/auth";
-import { AuthError } from "next-auth";
 
-export async function authenticate(
-  prevState: { error?: string; callbackUrl?: string } | undefined,
+import { revalidatePath } from "next/cache";
+import { userService } from "@/features/user/user-service";
+
+export async function createUser(
+  preState: { error?: string },
   formData: FormData,
 ) {
-  try {
-    await new Promise((e) => {
-      setTimeout(() => {
-        e(0);
-      }, 1000);
-    });
-    await signIn("credentials", {
-      ...Object.fromEntries(formData),
-      redirectTo: prevState?.callbackUrl || "/dashboard",
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return { error: "邮箱或密码不正确" };
-        default:
-          return { error: "登录时发生未知错误" };
-      }
-    }
-    // 关键:AuthError 之外的错误(比如内部重定向用的特殊错误)必须重新 throw
-    // 否则 signIn 成功后的跳转会被你的 catch 吞掉,导致登录成功却不跳转
-    throw error;
+  const username = formData.get("username") as string;
+  const email = formData.get("email") as string | undefined;
+  const displayName = formData.get("displayName") as string | undefined;
+  const password = formData.get("password") as string;
+  await userService.create({
+    username,
+    email: email || undefined,
+    displayName: displayName || undefined,
+    password,
+  });
+
+  revalidatePath("/dashboard/users");
+}
+
+export async function updateUser(id: string, formData: FormData) {
+  const username = formData.get("username") as string;
+  const email = formData.get("email") as string | undefined;
+  const displayName = formData.get("displayName") as string | undefined;
+  const password = formData.get("password") as string;
+
+  const data: Parameters<typeof userService.update>[1] = {
+    username,
+    email: email || undefined,
+    displayName: displayName || undefined,
+  };
+
+  if (password) {
+    data.password = password;
   }
-  return prevState;
+
+  await userService.update(id, data);
+  revalidatePath("/dashboard/users");
+}
+
+export async function deleteUser(id: string) {
+  await userService.delete(id);
+  revalidatePath("/dashboard/users");
 }

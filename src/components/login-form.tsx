@@ -1,5 +1,5 @@
 "use client";
-import { authenticate } from "@/features/user/user-action";
+import { authenticate } from "@/features/user/auth-action";
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

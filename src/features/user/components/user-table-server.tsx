@@ -1,8 +1,6 @@
 import * as userQuery from "@/features/user/user-query";
 import { UserTable } from "@/features/user/components/user-table";
-import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { PaginationBar } from "../../../components/pagination-bar";
+import { updateUser, deleteUser } from "@/features/user/user-action";
 
 type UserTableServerProps = {
   page: number;
@@ -15,5 +13,11 @@ export async function UserTableServer({
 }: UserTableServerProps) {
   const result = await userQuery.findPaginated(page, pageSize);
 
-  return <UserTable {...result} />;
+  return (
+    <UserTable
+      {...result}
+      onUpdateAction={updateUser}
+      onDeleteAction={deleteUser}
+    />
+  );
 }

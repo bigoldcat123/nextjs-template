@@ -3,8 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users } from "lucide-react";
 import { UserTableServer } from "@/features/user/components/user-table-server";
-import { PaginationBar } from "@/components/pagination-bar";
 import { getPaginationInfo } from "@/features/user/user-query";
+import { CreateUserButton } from "@/features/user/components/create-user-button";
+import { PaginationBar } from "@/components/pagination-bar";
 
 export default async function UsersPage({
   searchParams,
@@ -21,6 +22,7 @@ export default async function UsersPage({
         <div>
           <h1 className="text-2xl font-bold tracking-tight">用户管理</h1>
         </div>
+        <CreateUserButton />
       </div>
       <Card>
         <CardHeader>
