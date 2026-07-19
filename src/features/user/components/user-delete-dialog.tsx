@@ -10,12 +10,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AlertTriangle } from "lucide-react";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import { deleteUserAction } from "../user-action";
 
 type UserDeleteDialogProps = {
   open: boolean;
   onOpenChangeAction: (open: boolean) => void;
-  onConfirmAction: (userid: string) => Promise<{ error?: string }>;
+  onConfirmAction: typeof deleteUserAction;
   userId: string;
   username: string;
 };
@@ -28,11 +29,16 @@ export function UserDeleteDialog({
   username,
 }: UserDeleteDialogProps) {
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState("");
   const onConfirm = () => {
     startTransition(async () => {
-      await onConfirmAction(userId);
+      const res = await onConfirmAction(userId);
       startTransition(() => {
-        onOpenChangeAction(false);
+        if (res?.status === "ok") {
+          onOpenChangeAction(false);
+        } else {
+          setError(res?.message ?? "删除出错啦！");
+        }
       });
     });
   };

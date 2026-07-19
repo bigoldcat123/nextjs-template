@@ -20,7 +20,7 @@ import {
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { UserFormDialog } from "./user-form-dialog";
 import { UserDeleteDialog } from "./user-delete-dialog";
-import { deleteUserAction } from "../user-action";
+import { deleteUserAction, updateUserAction } from "../user-action";
 
 type User = {
   id: string;
@@ -37,11 +37,8 @@ type UserTableProps = {
   page: number;
   pageSize: number;
   totalPages: number;
-  onUpdateAction: (
-    preState: { error?: string },
-    formData: FormData,
-  ) => Promise<{ error?: string }>;
-  onDeleteAction: (id: string) => void;
+  onUpdateAction: typeof updateUserAction;
+  onDeleteAction: typeof deleteUserAction;
 };
 
 export function UserTable({
@@ -63,12 +60,6 @@ export function UserTable({
     setDeleteOpen(true);
   };
 
-  const handleDeleteConfirm = () => {
-    if (selectedUser) {
-      onDeleteAction(selectedUser.id);
-      setDeleteOpen(false);
-    }
-  };
 
   return (
     <>
@@ -147,7 +138,7 @@ export function UserTable({
             username: selectedUser.username,
             email: selectedUser.email || undefined,
             displayName: selectedUser.displayName,
-            id:selectedUser.id
+            id: selectedUser.id,
           }}
         />
       )}

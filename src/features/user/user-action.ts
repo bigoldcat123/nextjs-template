@@ -1,10 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { userService } from "@/features/user/user-service";
 import { z } from "zod";
 import { AppError } from "./user-errors";
-import { updateTag } from "next/cache";
+import type { ActionState } from "@/types";
 
 const createUserSchema = z.object({
   username: z.string().min(1, "用户名不能为空"),
@@ -21,70 +21,66 @@ const updateUserSchema = z.object({
   id: z.string("ID 不可为空"),
 });
 
-export async function createUserAction(
-  preState: { error?: string },
-  formData: FormData,
-) {
+export async function createUserAction(preState: ActionState, formData: FormData): Promise<ActionState> {
   const result = createUserSchema.safeParse(
     Object.fromEntries(formData.entries()),
   );
 
   if (!result.success) {
-    return { error: result.error.issues[0].message };
+    return { status: "error", message: result.error.issues[0].message };
   }
 
   try {
     await userService.create(result.data);
   } catch (e) {
     if (e instanceof AppError) {
-      return { error: e.message };
+      return { status: "error", message: e.message };
     } else {
-      return { error: "unknow Error!" };
+      return { status: "error", message: "unknow Error!" };
     }
   }
   updateTag("users");
   revalidatePath("/dashboard/users");
-  return { error: undefined };
+  return { status: "ok", message: "创建成功" };
 }
 
-export async function updateUserAction(
-  preState: { error?: string },
-  formData: FormData,
-) {
+export async function updateUserAction(preState: ActionState, formData: FormData): Promise<ActionState> {
   const result = updateUserSchema.safeParse(
     Object.fromEntries(formData.entries()),
   );
 
   if (!result.success) {
-    return { error: result.error.issues[0].message };
+    return { status: "error", message: result.error.issues[0].message };
   }
 
+  const d = result.data;
 
   try {
-    await userService.update(result.data);
+    await userService.update(d);
   } catch (e) {
     if (e instanceof AppError) {
-      return { error: e.message };
+      return { status: "error", message: e.message };
     } else {
-      return { error: "unknow Error!" };
+      return { status: "error", message: "unknow Error!" };
     }
   }
   updateTag("users");
   revalidatePath("/dashboard/users");
-  return { error: undefined };
+  return { status: "ok", message: "更新成功" };
 }
 
-export async function deleteUserAction(id: string) {
+export async function deleteUserAction(id:string): Promise<ActionState> {
+
   try {
     await userService.delete(id);
   } catch (e) {
     if (e instanceof AppError) {
-      return { error: e.message };
+      return { status: "error", message: e.message };
     } else {
-      return { error: "unknow Error!" };
+      return { status: "error", message: "unknow Error!" };
     }
   }
   updateTag("users");
   revalidatePath("/dashboard/users");
-  return { error: undefined };
+  return { status: "ok", message: "删除成功" };
 }

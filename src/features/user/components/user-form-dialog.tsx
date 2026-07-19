@@ -33,9 +33,7 @@ export function UserFormDialog({
   initialData,
 }: UserFormDialogProps) {
   const isEdit = !!initialData;
-  const [state, action, isPending] = useActionState(onSubmitAction, {
-    error: "",
-  });
+  const [state, action, isPending] = useActionState(onSubmitAction, undefined);
   return (
     <Dialog open={open} onOpenChange={onOpenChangeAction}>
       <DialogContent className="sm:max-w-106.25">
@@ -46,9 +44,9 @@ export function UserFormDialog({
               {isEdit ? "更新用户信息" : "填写以下信息以创建新用户"}
             </DialogDescription>
           </DialogHeader>
-          {state?.error && (
+          {state?.status == "error" && (
             <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive border border-destructive/20">
-              {state.error}
+              {state.message}
             </div>
           )}
           <div className="grid gap-4 py-4">
