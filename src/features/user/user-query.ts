@@ -2,51 +2,20 @@ import "server-only";
 
 import { userService } from "./user-service";
 import { sleep } from "@/lib/utils";
-/**
- * 根据 ID 查找用户，不存在则抛出异常
- */
-export async function findById(id: string) {
-  // "use cache";
-  return await userService.findByIdOrThrow(id);
-}
-
-/**
- * 根据用户名查找用户，不存在则抛出异常
- */
-export async function findByUsername(username: string) {
-  // "use cache";
-  return await userService.findByUsernameOrThrow(username);
-}
-
-/**
- * 根据邮箱查找用户
- */
-export async function findByEmail(email: string) {
-  // "use cache";
-  return await userService.findByEmail(email);
-}
-
-/**
- * 查询所有用户
- */
-export async function findAll() {
-  "use cache";
-  return await userService.findAll();
-}
+import { cacheTag } from "next/cache";
 
 /**
  * 分页查询用户
  */
-export async function findPaginated(page: number = 1, pageSize: number = 10) {
-
+export async function getUsersPaginated(page: number = 1, pageSize: number = 10) {
   await sleep(1000);
   return await userService.findPaginated(page, pageSize);
 }
-
 /**
  * 根据 pageSize 获取分页信息
  */
 export async function getPaginationInfo(pageSize: number = 10) {
   "use cache";
+  cacheTag("users");
   return await userService.getTotalPages(pageSize);
 }

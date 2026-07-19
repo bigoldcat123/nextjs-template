@@ -78,91 +78,6 @@ export const userService = {
   },
 
   /**
-   * 根据 ID 查找用户
-   */
-  async findById(id: string) {
-    try {
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, id))
-        .limit(1);
-      return user ?? null;
-    } catch (error) {
-      throw new DatabaseError("查询用户", error);
-    }
-  },
-
-  /**
-   * 根据 ID 查找用户，不存在则抛出异常
-   */
-  async findByIdOrThrow(id: string) {
-    const user = await this.findById(id);
-    if (!user) {
-      throw new UserNotFoundError(id);
-    }
-    return user;
-  },
-
-  /**
-   * 根据用户名查找用户
-   */
-  async findByUsername(username: string) {
-    try {
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.username, username))
-        .limit(1);
-      if (user) {
-        return user;
-      } else {
-        throw new UserNotFoundError(username);
-      }
-    } catch (error) {
-      throw new DatabaseError("查询用户", error);
-    }
-  },
-
-  /**
-   * 根据用户名查找用户，不存在则抛出异常
-   */
-  async findByUsernameOrThrow(username: string) {
-    const user = await this.findByUsername(username);
-    if (!user) {
-      throw new UserNotFoundError(username);
-    }
-    return user;
-  },
-
-  /**
-   * 根据邮箱查找用户
-   */
-  async findByEmail(email: string) {
-    try {
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, email))
-        .limit(1);
-      return user ?? null;
-    } catch (error) {
-      throw new DatabaseError("查询用户", error);
-    }
-  },
-
-  /**
-   * 查询所有用户
-   */
-  async findAll() {
-    try {
-      return await db.select().from(users);
-    } catch (error) {
-      throw new DatabaseError("查询用户列表", error);
-    }
-  },
-
-  /**
    * 分页查询用户
    */
   async findPaginated(page: number = 1, pageSize: number = 10) {
@@ -205,11 +120,13 @@ export const userService = {
    */
   async update(input: UpdateUserInput) {
     // 先检查用户是否存在
-    const existingUser = await this.findByIdOrThrow(input.id);
+    const existingUser = await findByIdOrThrow(input.id);
 
     // 检查用户名是否被其他用户使用
     if (input.username && input.username !== existingUser.username) {
-      const existingUsername = await this.findByUsername(input.username);
+      const existingUsername = await db.query.users.findFirst({
+        where: { username: input.username },
+      });
       if (existingUsername && existingUsername.id !== input.id) {
         throw new UsernameAlreadyExistsError(input.username);
       }
@@ -217,7 +134,9 @@ export const userService = {
 
     // 检查邮箱是否被其他用户使用
     if (input.email && input.email !== existingUser.email) {
-      const existingEmail = await this.findByEmail(input.email);
+      const existingEmail = await db.query.users.findFirst({
+        where: { email: input.email },
+      });
       if (existingEmail && existingEmail.id !== input.id) {
         throw new EmailAlreadyExistsError(input.email);
       }
@@ -251,7 +170,7 @@ export const userService = {
    */
   async delete(id: string) {
     // 先检查用户是否存在
-    await this.findByIdOrThrow(id);
+    await findByIdOrThrow(id);
 
     try {
       const [user] = await db.delete(users).where(eq(users.id, id)).returning();
@@ -288,3 +207,31 @@ export const userService = {
     }
   },
 };
+async function findByUsernameOrThrow(username: string) {
+  try {
+    const user = await db.query.users.findFirst({ where: { username } });
+    if (!user) {
+      throw new UserNotFoundError(username);
+    }
+    return user;
+  } catch (e) {
+    if (e instanceof AppError) {
+      throw e;
+    }
+    throw new DatabaseError("找用户时候出错了");
+  }
+}
+async function findByIdOrThrow(id: string) {
+  try {
+    const user = await db.query.users.findFirst({ where: { id } });
+    if (!user) {
+      throw new UserNotFoundError(id);
+    }
+    return user;
+  } catch (e) {
+    if (e instanceof AppError) {
+      throw e;
+    }
+    throw new DatabaseError("找用户时候 出错了");
+  }
+}

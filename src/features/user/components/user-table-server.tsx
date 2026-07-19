@@ -11,7 +11,7 @@ export async function UserTableServer({
   page,
   pageSize,
 }: UserTableServerProps) {
-  const result = await userQuery.findPaginated(page, pageSize);
+  const result = await userQuery.getUsersPaginated(page, pageSize);
 
   return (
     <UserTable
