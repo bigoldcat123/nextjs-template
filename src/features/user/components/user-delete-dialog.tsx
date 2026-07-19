@@ -57,6 +57,11 @@ export function UserDeleteDialog({
             <span className="font-medium text-foreground">{username}</span>{" "}
             吗？此操作无法撤销。
           </DialogDescription>
+          {error && (
+            <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive border border-destructive/20">
+              {error}
+            </div>
+          )}
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
           <Button variant="outline" onClick={() => onOpenChangeAction(false)}>
