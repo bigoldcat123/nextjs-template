@@ -1,21 +1,6 @@
-/**
- * 用户模块自定义错误
- */
+import { AppError, DatabaseError } from "@/error";
 
-/**
- * 基础应用错误
- */
-export class AppError extends Error {
-  public readonly code: string;
-  public readonly statusCode: number;
-
-  constructor(message: string, code: string, statusCode: number = 500) {
-    super(message);
-    this.name = "AppError";
-    this.code = code;
-    this.statusCode = statusCode;
-  }
-}
+export { AppError, DatabaseError };
 
 /**
  * 用户不存在
@@ -58,19 +43,5 @@ export class InvalidUserInputError extends AppError {
       : `无效的 ${field}`;
     super(message, "INVALID_USER_INPUT", 400);
     this.name = "InvalidUserInputError";
-  }
-}
-
-/**
- * 数据库操作错误
- */
-export class DatabaseError extends AppError {
-  constructor(operation: string, originalError?: unknown) {
-    const message = `数据库${operation}失败`;
-    super(message, "DATABASE_ERROR", 500);
-    this.name = "DatabaseError";
-    if (originalError) {
-      this.cause = originalError;
-    }
   }
 }

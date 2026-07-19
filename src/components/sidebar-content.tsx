@@ -9,7 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Users } from "lucide-react";
+import { Users,UserKey } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -20,9 +20,9 @@ const menuItems = [
     icon: Users,
   },
   {
-    title: "组织管理",
-    url: "/dashboard/organization",
-    icon: Users,
+    title: "角色管理",
+    url: "/dashboard/role",
+    icon: UserKey,
   },
 ];
 
