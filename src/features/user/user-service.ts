@@ -1,10 +1,8 @@
 import "server-only";
 
-import {
-  userRepository,
-  type CreateUserInput,
-  type UpdateUserInput,
-} from "./use-repository";
+import { db } from "@/db";
+import { users, type users as usersTable } from "@/db/schema";
+import { count, eq } from "drizzle-orm";
 import {
   DatabaseError,
   EmailAlreadyExistsError,
@@ -14,8 +12,23 @@ import {
 } from "./user-errors";
 
 /**
- * 用户服务层 - 处理业务逻辑和异常转换
- * 将 repository 层的外部错误转换为内部自定义错误
+ * 创建用户输入类型
+ */
+export type CreateUserInput = typeof usersTable.$inferInsert;
+
+/**
+ * 更新用户输入类型
+ */
+export type UpdateUserInput = Partial<
+  Pick<
+    typeof usersTable.$inferSelect,
+    "username" | "email" | "displayName" | "password"
+  >
+>;
+
+/**
+ * 用户服务层 - 处理业务逻辑、数据访问和异常转换
+ * 直接使用 db 操作数据库，将外部错误转换为内部自定义错误
  */
 export const userService = {
   /**
@@ -30,16 +43,25 @@ export const userService = {
       throw new InvalidUserInputError("password", "不能为空");
     }
 
+    // 检查用户名是否已存在
+    const existingUsername = await this.findByUsername(input.username);
+
+    if (existingUsername) {
+      throw new UsernameAlreadyExistsError(input.username);
+    }
+
+    // 检查邮箱是否已存在
+    if (input.email) {
+      const existingEmail = await this.findByEmail(input.email);
+      if (existingEmail) {
+        throw new EmailAlreadyExistsError(input.email);
+      }
+    }
+
     try {
-      return await userRepository.create(input);
+      const [user] = await db.insert(users).values(input).returning();
+      return user;
     } catch (error) {
-      // 捕获数据库唯一约束错误
-      if (isUniqueConstraintError(error, "username")) {
-        throw new UsernameAlreadyExistsError(input.username);
-      }
-      if (isUniqueConstraintError(error, "email")) {
-        throw new EmailAlreadyExistsError(input.email ?? "");
-      }
       throw new DatabaseError("创建用户", error);
     }
   },
@@ -49,7 +71,12 @@ export const userService = {
    */
   async findById(id: string) {
     try {
-      return await userRepository.findById(id);
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, id))
+        .limit(1);
+      return user ?? null;
     } catch (error) {
       throw new DatabaseError("查询用户", error);
     }
@@ -71,7 +98,16 @@ export const userService = {
    */
   async findByUsername(username: string) {
     try {
-      return await userRepository.findByUsername(username);
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.username, username))
+        .limit(1);
+      if (user) {
+        return user;
+      } else {
+        throw new UserNotFoundError(username);
+      }
     } catch (error) {
       throw new DatabaseError("查询用户", error);
     }
@@ -93,7 +129,12 @@ export const userService = {
    */
   async findByEmail(email: string) {
     try {
-      return await userRepository.findByEmail(email);
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+      return user ?? null;
     } catch (error) {
       throw new DatabaseError("查询用户", error);
     }
@@ -104,7 +145,7 @@ export const userService = {
    */
   async findAll() {
     try {
-      return await userRepository.findAll();
+      return await db.select().from(users);
     } catch (error) {
       throw new DatabaseError("查询用户列表", error);
     }
@@ -121,8 +162,28 @@ export const userService = {
       throw new InvalidUserInputError("pageSize", "必须在 1-100 之间");
     }
 
+    const offset = (page - 1) * pageSize;
+
     try {
-      return await userRepository.findPaginated(page, pageSize);
+      const [usersResult, countResult] = await Promise.all([
+        db
+          .select()
+          .from(users)
+          .limit(pageSize)
+          .offset(offset)
+          .orderBy(users.createdAt),
+        db.select({ count: count() }).from(users),
+      ]);
+
+      const total = countResult[0].count;
+
+      return {
+        data: usersResult,
+        total,
+        page,
+        pageSize,
+        totalPages: Math.ceil(total / pageSize),
+      };
     } catch (error) {
       throw new DatabaseError("分页查询用户", error);
     }
@@ -135,23 +196,40 @@ export const userService = {
     // 先检查用户是否存在
     const existingUser = await this.findByIdOrThrow(id);
 
+    // 检查用户名是否被其他用户使用
+    if (input.username && input.username !== existingUser.username) {
+      const existingUsername = await this.findByUsername(input.username);
+      if (existingUsername && existingUsername.id !== id) {
+        throw new UsernameAlreadyExistsError(input.username);
+      }
+    }
+
+    // 检查邮箱是否被其他用户使用
+    if (input.email && input.email !== existingUser.email) {
+      const existingEmail = await this.findByEmail(input.email);
+      if (existingEmail && existingEmail.id !== id) {
+        throw new EmailAlreadyExistsError(input.email);
+      }
+    }
+
     try {
-      const user = await userRepository.update(id, input);
+      const [user] = await db
+        .update(users)
+        .set(input)
+        .where(eq(users.id, id))
+        .returning();
+
       if (!user) {
         throw new UserNotFoundError(id);
       }
       return user;
     } catch (error) {
-      // 如果是自定义错误，直接抛出
-      if (error instanceof UserNotFoundError) {
+      if (
+        error instanceof UserNotFoundError ||
+        error instanceof UsernameAlreadyExistsError ||
+        error instanceof EmailAlreadyExistsError
+      ) {
         throw error;
-      }
-      // 捕获唯一约束错误
-      if (isUniqueConstraintError(error, "username")) {
-        throw new UsernameAlreadyExistsError(existingUser.username);
-      }
-      if (isUniqueConstraintError(error, "email")) {
-        throw new EmailAlreadyExistsError(input.email ?? existingUser.email ?? "");
       }
       throw new DatabaseError("更新用户", error);
     }
@@ -165,7 +243,8 @@ export const userService = {
     await this.findByIdOrThrow(id);
 
     try {
-      const user = await userRepository.delete(id);
+      const [user] = await db.delete(users).where(eq(users.id, id)).returning();
+
       if (!user) {
         throw new UserNotFoundError(id);
       }
@@ -178,17 +257,3 @@ export const userService = {
     }
   },
 };
-
-/**
- * 判断是否为唯一约束错误
- */
-function isUniqueConstraintError(error: unknown, field: string): boolean {
-  if (error instanceof Error) {
-    const message = error.message.toLowerCase();
-    return (
-      message.includes("unique") &&
-      (message.includes(field) || message.includes("duplicate"))
-    );
-  }
-  return false;
-}
