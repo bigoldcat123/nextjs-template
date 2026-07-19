@@ -1,7 +1,7 @@
 import "server-only";
 
 import { db } from "@/db";
-import { users, type users as usersTable } from "@/db/schema";
+import { users } from "@/db/schema";
 import { count, eq } from "drizzle-orm";
 import {
   DatabaseError,
@@ -14,17 +14,18 @@ import {
 /**
  * 创建用户输入类型
  */
-export type CreateUserInput = typeof usersTable.$inferInsert;
+export type CreateUserInput = typeof users.$inferInsert;
 
 /**
  * 更新用户输入类型
  */
 export type UpdateUserInput = Partial<
   Pick<
-    typeof usersTable.$inferSelect,
+    typeof users.$inferSelect,
     "username" | "email" | "displayName" | "password"
   >
->;
+> &
+  Pick<typeof users.$inferSelect, "id">;
 
 /**
  * 用户服务层 - 处理业务逻辑、数据访问和异常转换
@@ -192,14 +193,14 @@ export const userService = {
   /**
    * 更新用户
    */
-  async update(id: string, input: UpdateUserInput) {
+  async update(input: UpdateUserInput) {
     // 先检查用户是否存在
-    const existingUser = await this.findByIdOrThrow(id);
+    const existingUser = await this.findByIdOrThrow(input.id);
 
     // 检查用户名是否被其他用户使用
     if (input.username && input.username !== existingUser.username) {
       const existingUsername = await this.findByUsername(input.username);
-      if (existingUsername && existingUsername.id !== id) {
+      if (existingUsername && existingUsername.id !== input.id) {
         throw new UsernameAlreadyExistsError(input.username);
       }
     }
@@ -207,7 +208,7 @@ export const userService = {
     // 检查邮箱是否被其他用户使用
     if (input.email && input.email !== existingUser.email) {
       const existingEmail = await this.findByEmail(input.email);
-      if (existingEmail && existingEmail.id !== id) {
+      if (existingEmail && existingEmail.id !== input.id) {
         throw new EmailAlreadyExistsError(input.email);
       }
     }
@@ -216,11 +217,11 @@ export const userService = {
       const [user] = await db
         .update(users)
         .set(input)
-        .where(eq(users.id, id))
+        .where(eq(users.id, input.id))
         .returning();
 
       if (!user) {
-        throw new UserNotFoundError(id);
+        throw new UserNotFoundError(input.id);
       }
       return user;
     } catch (error) {

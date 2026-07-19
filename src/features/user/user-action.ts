@@ -18,9 +18,10 @@ const updateUserSchema = z.object({
   email: z.email("邮箱格式不正确").optional().or(z.literal("")),
   displayName: z.string().optional(),
   password: z.string().optional(),
+  id: z.string("ID 不可为空"),
 });
 
-export async function createUser(
+export async function createUserAction(
   preState: { error?: string },
   formData: FormData,
 ) {
@@ -46,7 +47,10 @@ export async function createUser(
   return { error: undefined };
 }
 
-export async function updateUser(id: string, formData: FormData) {
+export async function updateUser(
+  preState: { error?: string },
+  formData: FormData,
+) {
   const result = updateUserSchema.safeParse(
     Object.fromEntries(formData.entries()),
   );
@@ -55,24 +59,32 @@ export async function updateUser(id: string, formData: FormData) {
     return { error: result.error.issues[0].message };
   }
 
-  const { username, email, displayName, password } = result.data;
 
-  const data: Parameters<typeof userService.update>[1] = {
-    username,
-    email: email || undefined,
-    displayName: displayName || undefined,
-  };
-
-  if (password) {
-    data.password = password;
+  try {
+    await userService.update(result.data);
+  } catch (e) {
+    if (e instanceof AppError) {
+      return { error: e.message };
+    } else {
+      return { error: "unknow Error!" };
+    }
   }
-
-  await userService.update(id, data);
+  updateTag("users");
   revalidatePath("/dashboard/users");
   return { error: undefined };
 }
 
 export async function deleteUser(id: string) {
-  await userService.delete(id);
+  try {
+    await userService.delete(id);
+  } catch (e) {
+    if (e instanceof AppError) {
+      return { error: e.message };
+    } else {
+      return { error: "unknow Error!" };
+    }
+  }
+  updateTag("users");
   revalidatePath("/dashboard/users");
+  return { error: undefined };
 }

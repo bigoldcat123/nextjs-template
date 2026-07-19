@@ -20,6 +20,7 @@ import {
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { UserFormDialog } from "./user-form-dialog";
 import { UserDeleteDialog } from "./user-delete-dialog";
+import { deleteUser } from "../user-action";
 
 type User = {
   id: string;
@@ -36,7 +37,10 @@ type UserTableProps = {
   page: number;
   pageSize: number;
   totalPages: number;
-  onUpdateAction: (id: string, formData: FormData) => void;
+  onUpdateAction: (
+    preState: { error?: string },
+    formData: FormData,
+  ) => Promise<{ error?: string }>;
   onDeleteAction: (id: string) => void;
 };
 
@@ -57,13 +61,6 @@ export function UserTable({
   const handleDelete = (user: User) => {
     setSelectedUser(user);
     setDeleteOpen(true);
-  };
-
-  const handleEditSubmit = (formData: FormData) => {
-    if (selectedUser) {
-      onUpdateAction(selectedUser.id, formData);
-      setEditOpen(false);
-    }
   };
 
   const handleDeleteConfirm = () => {
@@ -99,7 +96,10 @@ export function UserTable({
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="size-9">
-                      <AvatarImage src={user.profile || ""} alt={user.displayName} />
+                      <AvatarImage
+                        src={user.profile || ""}
+                        alt={user.displayName}
+                      />
                       <AvatarFallback>{initials}</AvatarFallback>
                     </Avatar>
                     <span className="font-medium">{user.displayName}</span>
@@ -112,7 +112,9 @@ export function UserTable({
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
-                    <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
+                    <DropdownMenuTrigger
+                      render={<Button variant="ghost" size="icon" />}
+                    >
                       <MoreHorizontal className="size-4" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -140,7 +142,7 @@ export function UserTable({
         <UserFormDialog
           open={editOpen}
           onOpenChangeAction={setEditOpen}
-          onSubmitAction={handleEditSubmit}
+          onSubmitAction={onUpdateAction}
           initialData={{
             username: selectedUser.username,
             email: selectedUser.email || undefined,
@@ -152,9 +154,10 @@ export function UserTable({
       {selectedUser && (
         <UserDeleteDialog
           open={deleteOpen}
-          onOpenChange={setDeleteOpen}
-          onConfirm={handleDeleteConfirm}
+          onOpenChangeAction={setDeleteOpen}
+          onConfirmAction={deleteUser}
           username={selectedUser.username}
+          userId={selectedUser.id}
         />
       )}
     </>

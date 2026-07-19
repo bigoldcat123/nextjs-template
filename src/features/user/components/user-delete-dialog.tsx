@@ -10,23 +10,35 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AlertTriangle } from "lucide-react";
+import { useTransition } from "react";
 
 type UserDeleteDialogProps = {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  onOpenChangeAction: (open: boolean) => void;
+  onConfirmAction: (userid: string) => Promise<{ error?: string }>;
+  userId: string;
   username: string;
 };
 
 export function UserDeleteDialog({
   open,
-  onOpenChange,
-  onConfirm,
+  onOpenChangeAction,
+  onConfirmAction,
+  userId,
   username,
 }: UserDeleteDialogProps) {
+  const [isPending, startTransition] = useTransition();
+  const onConfirm = () => {
+    startTransition(async () => {
+      await onConfirmAction(userId);
+      startTransition(() => {
+        onOpenChangeAction(false);
+      });
+    });
+  };
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={open} onOpenChange={onOpenChangeAction}>
+      <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="flex size-10 items-center justify-center rounded-full bg-destructive/10">
@@ -35,14 +47,20 @@ export function UserDeleteDialog({
             <DialogTitle>确认删除</DialogTitle>
           </div>
           <DialogDescription>
-            确定要删除用户 <span className="font-medium text-foreground">{username}</span> 吗？此操作无法撤销。
+            确定要删除用户{" "}
+            <span className="font-medium text-foreground">{username}</span>{" "}
+            吗？此操作无法撤销。
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChangeAction(false)}>
             取消
           </Button>
-          <Button variant="destructive" onClick={onConfirm}>
+          <Button
+            disabled={isPending}
+            variant="destructive"
+            onClick={onConfirm}
+          >
             删除
           </Button>
         </DialogFooter>

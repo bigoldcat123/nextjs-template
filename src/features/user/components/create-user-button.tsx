@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { UserFormDialog } from "./user-form-dialog";
-import { createUser } from "@/features/user/user-action";
+import { createUserAction } from "@/features/user/user-action";
 
 export function CreateUserButton() {
   const [open, setOpen] = useState(false);
@@ -18,7 +18,7 @@ export function CreateUserButton() {
       <UserFormDialog
         open={open}
         onOpenChangeAction={setOpen}
-        onSubmitAction={createUser}
+        onSubmitAction={createUserAction}
       />
     </>
   );
