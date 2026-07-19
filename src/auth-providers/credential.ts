@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { usersTable } from "@/db/schema";
+import { users } from "@/db/schema";
 import { and, eq } from "drizzle-orm";
 import Credentials from "next-auth/providers/credentials";
 import { string, z } from "zod";
@@ -26,11 +26,11 @@ export const credentials = Credentials({
     const credentialsParsed = await userSchema.parseAsync(credentials);
     const user = await db
       .select()
-      .from(usersTable)
+      .from(users)
       .where(
         and(
-          eq(usersTable.username, credentialsParsed.username),
-          eq(usersTable.password, credentialsParsed.password),
+          eq(users.username, credentialsParsed.username),
+          eq(users.password, credentialsParsed.password),
         ),
       );
     if (user.length == 0) {
