@@ -2,7 +2,7 @@ import * as userQuery from "@/features/user/user-query";
 import { UserTable } from "@/features/user/components/user-table";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PaginationBar } from "./pagination-bar";
+import { PaginationBar } from "../../../components/pagination-bar";
 
 type UserTableServerProps = {
   page: number;

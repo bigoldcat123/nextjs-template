@@ -256,4 +256,24 @@ export const userService = {
       throw new DatabaseError("删除用户", error);
     }
   },
+
+  /**
+   * 获取分页信息（总页数）
+   */
+  async getTotalPages(pageSize: number = 10) {
+    if (pageSize < 1 || pageSize > 100) {
+      throw new InvalidUserInputError("pageSize", "必须在 1-100 之间");
+    }
+
+    try {
+      const [countResult] = await db.select({ count: count() }).from(users);
+      const total = countResult.count;
+      return {
+        total,
+        totalPages: Math.ceil(total / pageSize),
+      };
+    } catch (error) {
+      throw new DatabaseError("获取分页信息", error);
+    }
+  },
 };

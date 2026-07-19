@@ -44,3 +44,11 @@ export async function findPaginated(page: number = 1, pageSize: number = 10) {
   await sleep(1000);
   return await userService.findPaginated(page, pageSize);
 }
+
+/**
+ * 根据 pageSize 获取分页信息
+ */
+export async function getPaginationInfo(pageSize: number = 10) {
+  "use cache";
+  return await userService.getTotalPages(pageSize);
+}

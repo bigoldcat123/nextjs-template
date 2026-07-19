@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { PaginationBar } from "./pagination-bar";
+import { PaginationBar } from "../../../components/pagination-bar";
 
 type User = {
   id: string;
@@ -20,19 +20,9 @@ type User = {
 
 type UserTableProps = {
   data: User[];
-  total: number;
-  page: number;
-  pageSize: number;
-  totalPages: number;
 };
 
-export function UserTable({
-  data,
-  total,
-  page,
-  pageSize,
-  totalPages,
-}: UserTableProps) {
+export function UserTable({ data }: UserTableProps) {
   return (
     <div className="flex flex-col gap-4">
       <Table>
@@ -77,12 +67,6 @@ export function UserTable({
           })}
         </TableBody>
       </Table>
-      <PaginationBar
-        page={page}
-        pageSize={pageSize}
-        total={total}
-        totalPages={totalPages}
-      />
     </div>
   );
 }
