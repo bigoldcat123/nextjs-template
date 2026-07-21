@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -32,6 +34,7 @@ export function RoleTable({ data }: RoleTableProps) {
           <TableHead>角色名称</TableHead>
           <TableHead>描述</TableHead>
           <TableHead>创建时间</TableHead>
+          <TableHead className="w-12">操作</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -43,6 +46,11 @@ export function RoleTable({ data }: RoleTableProps) {
             </TableCell>
             <TableCell className="text-muted-foreground">
               {new Date(role.createdAt).toLocaleDateString("zh-CN")}
+            </TableCell>
+            <TableCell>
+              <Button render={<Link href={`/dashboard/role/${role.id}`} />} variant="ghost" size="sm" nativeButton={false}>
+                查看
+              </Button>
             </TableCell>
           </TableRow>
         ))}
