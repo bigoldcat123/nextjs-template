@@ -1,4 +1,4 @@
-import "server-only";
+// import "server-only";
 
 import { db } from "@/db";
 import { roles } from "@/db/schema";
@@ -65,5 +65,26 @@ export const roleService = {
     } catch (error) {
       throw new DatabaseError("获取分页信息", error);
     }
+  },
+  async getRoleGraph(roleId: string) {
+    const res = await db.query.roles.findFirst({
+      where: { id: roleId },
+      with: {
+        parentRoles: true,
+        childRoles: true,
+      },
+    });
+    const nodes = [{ id: roleId, name: res?.name }];
+    const edges: Array<{ target: string; source: string }> = [];
+
+    for (const parent of res?.parentRoles ?? []) {
+      edges.push({ source: roleId, target: parent.id });
+      const { nodes: nextNodes, edges: nextEdges } = await this.getRoleGraph(
+        parent.id,
+      );
+      nodes.push(...nextNodes);
+      edges.push(...nextEdges);
+    }
+    return { nodes, edges };
   },
 };
