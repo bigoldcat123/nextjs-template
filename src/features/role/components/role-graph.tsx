@@ -1,45 +1,47 @@
+"use client";
+
 import {
   addEdge,
   applyEdgeChanges,
   applyNodeChanges,
   Background,
+  Connection,
   Edge,
+  EdgeChange,
   Node,
+  NodeChange,
   ReactFlow,
 } from "@xyflow/react";
-import { getRoleGraph } from "../role-query";
 import { useCallback, useState } from "react";
 
-export default async function RoleGraph({ roleId }: { roleId: string }) {
-  const { nodes: nodes_, edges: edges_ } = await getRoleGraph(roleId);
-  const initialNodes: Array<Node> = nodes_.map((x) => {
-    return { id: x.id, position: { x: 0, y: 0 }, data: { lablel: x.name } };
-  });
-  const initialEdges: Array<Edge> = edges_.map((x) => {
-    return {
-      id: `${x.source}-${x.target}`,
-      target: x.target,
-      source: x.source,
-    };
-  });
+type RoleGraphProps = {
+  initialNodes: Node[];
+  initialEdges: Edge[];
+};
 
+export default function RoleGraph({
+  initialNodes,
+  initialEdges,
+}: RoleGraphProps) {
   const [nodes, setNodes] = useState(initialNodes);
   const [edges, setEdges] = useState(initialEdges);
 
   const onNodesChange = useCallback(
-    (changes) =>
+    (changes: NodeChange[]) =>
       setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
     [],
   );
   const onEdgesChange = useCallback(
-    (changes) =>
+    (changes: EdgeChange[]) =>
       setEdges((edgesSnapshot) => applyEdgeChanges(changes, edgesSnapshot)),
     [],
   );
   const onConnect = useCallback(
-    (params) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
+    (params: Connection) =>
+      setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     [],
   );
+
   return (
     <div className="h-100">
       <ReactFlow
@@ -49,6 +51,9 @@ export default async function RoleGraph({ roleId }: { roleId: string }) {
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         fitView
+        proOptions={{
+          hideAttribution: true,
+        }}
       >
         <Background />
       </ReactFlow>

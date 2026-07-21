@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import RoleGraph from "@/features/role/components/role-graph";
+import RoleGraphServer from "@/features/role/components/role-graph-server";
 import { UserKey } from "lucide-react";
 
 export default async function RoleDetailPage({
@@ -18,7 +18,7 @@ export default async function RoleDetailPage({
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">角色 ID: {id}</p>
-          <RoleGraph roleId={id} />
+          <RoleGraphServer roleId={id} />
         </CardContent>
       </Card>
     </div>
