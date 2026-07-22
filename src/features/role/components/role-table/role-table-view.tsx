@@ -48,7 +48,7 @@ export function RoleTableView({ data }: RoleTableViewProps) {
               {new Date(role.createdAt).toLocaleDateString("zh-CN")}
             </TableCell>
             <TableCell>
-              <Button render={<Link href={`/dashboard/role/${role.id}`} />} variant="ghost" size="sm">
+              <Button nativeButton={false}  render={<Link href={`/dashboard/role/${role.id}`} />} variant="ghost" size="sm">
                 查看
               </Button>
             </TableCell>
