@@ -35,7 +35,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return true;
     },
     async session({ session, token }) {
-      console.log("session")
+      // this is called every time you fetch the currentUserInfo, such as await auth on server or useAuth on client.
       const user = await db.query.users.findFirst({ where: { id: token.sub } });
       if (!user) {
         return session;

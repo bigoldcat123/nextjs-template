@@ -13,13 +13,14 @@ import {
   ReactFlow,
 } from "@xyflow/react";
 import { useCallback, useState } from "react";
+import { RoleNode, RoleNodeName } from "./role-node";
 
 type RoleGraphProps = {
   initialNodes: Node[];
   initialEdges: Edge[];
 };
 
-export default function RoleGraph({
+export default function RoleGraphView({
   initialNodes,
   initialEdges,
 }: RoleGraphProps) {
@@ -41,7 +42,9 @@ export default function RoleGraph({
       setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
     [],
   );
-
+  const nodeTypes = {
+    [RoleNodeName]: RoleNode,
+  };
   return (
     <div className="h-100">
       <ReactFlow
@@ -51,6 +54,7 @@ export default function RoleGraph({
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         fitView
+        nodeTypes={nodeTypes}
         proOptions={{
           hideAttribution: true,
         }}
