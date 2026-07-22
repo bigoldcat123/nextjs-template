@@ -1,10 +1,8 @@
-import { Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { UserKey } from "lucide-react";
-import { RoleTableServer } from "@/features/role/components/role-table-server";
 import { getRolePaginationInfo } from "@/features/role/role-query";
 import { PaginationBar } from "@/components/pagination-bar";
+import RoleTable from "@/features/role/components/role-table";
 
 export default async function RolesPage({
   searchParams,
@@ -30,42 +28,14 @@ export default async function RolesPage({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Suspense key={page} fallback={<RoleTableSkeleton />}>
-            <RoleTableServer page={page} pageSize={pageSize} />
-          </Suspense>
-          <Suspense fallback={<PaginationBarSkeleton />}>
-            <PaginationBar
-              pageSize={pageSize}
-              page={page}
-              pageInfo={getRolePaginationInfo(pageSize)}
-            />
-          </Suspense>
+          <RoleTable page={page} pageSize={pageSize} />
+          <PaginationBar
+            pageSize={pageSize}
+            page={page}
+            pageInfo={getRolePaginationInfo(pageSize)}
+          />
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-function RoleTableSkeleton() {
-  return (
-    <div className="space-y-3">
-      <Skeleton className="h-10 w-full" />
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={i} className="h-12 w-full" />
-      ))}
-    </div>
-  );
-}
-
-function PaginationBarSkeleton() {
-  return (
-    <div className="flex items-center justify-between pt-4">
-      <Skeleton className="h-5 w-40" />
-      <div className="flex items-center gap-1">
-        <Skeleton className="size-8" />
-        <Skeleton className="size-8" />
-        <Skeleton className="size-8" />
-      </div>
     </div>
   );
 }

@@ -18,7 +18,7 @@ type Role = {
   createdAt: Date;
 };
 
-type RoleTableProps = {
+type RoleTableViewProps = {
   data: Role[];
   total: number;
   page: number;
@@ -26,7 +26,7 @@ type RoleTableProps = {
   totalPages: number;
 };
 
-export function RoleTable({ data }: RoleTableProps) {
+export function RoleTableView({ data }: RoleTableViewProps) {
   return (
     <Table>
       <TableHeader>
@@ -48,7 +48,7 @@ export function RoleTable({ data }: RoleTableProps) {
               {new Date(role.createdAt).toLocaleDateString("zh-CN")}
             </TableCell>
             <TableCell>
-              <Button render={<Link href={`/dashboard/role/${role.id}`} />} variant="ghost" size="sm" nativeButton={false}>
+              <Button render={<Link href={`/dashboard/role/${role.id}`} />} variant="ghost" size="sm">
                 查看
               </Button>
             </TableCell>
