@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { AlertTriangle } from "lucide-react";
 import { useState, useTransition } from "react";
-import { deleteUserAction } from "../user-action";
+import { deleteUserAction } from "../../user-action";
 
 type UserDeleteDialogProps = {
   open: boolean;
