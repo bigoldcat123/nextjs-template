@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users } from "lucide-react";
-import { UserTableServer } from "@/features/user/components/user-table-server";
+import UserTable from "@/features/user/components/user-table";
 import { getPaginationInfo } from "@/features/user/user-query";
 import { CreateUserButton } from "@/features/user/components/create-user-button";
 import { PaginationBar } from "@/components/pagination-bar";
@@ -32,9 +32,7 @@ export default async function UsersPage({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Suspense key={page} fallback={<UserTableSkeleton />}>
-            <UserTableServer page={page} pageSize={pageSize} />
-          </Suspense>
+          <UserTable page={page} pageSize={pageSize} />
           <Suspense fallback={<PaginationBarSkeleton />}>
             <PaginationBar
               pageSize={pageSize}
@@ -44,17 +42,6 @@ export default async function UsersPage({
           </Suspense>
         </CardContent>
       </Card>
-    </div>
-  );
-}
-
-function UserTableSkeleton() {
-  return (
-    <div className="space-y-3">
-      <Skeleton className="h-10 w-full" />
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={i} className="h-16 w-full" />
-      ))}
     </div>
   );
 }

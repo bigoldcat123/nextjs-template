@@ -18,9 +18,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { UserFormDialog } from "./user-form-dialog";
-import { UserDeleteDialog } from "./user-delete-dialog";
-import { deleteUserAction, updateUserAction } from "../user-action";
+import { UserFormDialog } from "../user-form-dialog";
+import { UserDeleteDialog } from "../user-delete-dialog";
+import { deleteUserAction, updateUserAction } from "../../user-action";
 
 type User = {
   id: string;
@@ -31,7 +31,7 @@ type User = {
   createdAt: Date;
 };
 
-type UserTableProps = {
+type UserTableViewProps = {
   data: User[];
   total: number;
   page: number;
@@ -41,11 +41,11 @@ type UserTableProps = {
   onDeleteAction: typeof deleteUserAction;
 };
 
-export function UserTable({
+export function UserTableView({
   data,
   onUpdateAction,
   onDeleteAction,
-}: UserTableProps) {
+}: UserTableViewProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -59,7 +59,6 @@ export function UserTable({
     setSelectedUser(user);
     setDeleteOpen(true);
   };
-
 
   return (
     <>
