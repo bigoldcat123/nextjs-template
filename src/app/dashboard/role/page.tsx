@@ -3,6 +3,7 @@ import { UserKey } from "lucide-react";
 import { getRolePaginationInfo } from "@/features/role/role-query";
 import { PaginationBar } from "@/components/pagination-bar";
 import RoleTable from "@/features/role/components/role-table";
+import { CreateRoleButton } from "@/features/role/components/create-role-button";
 
 export default async function RolesPage({
   searchParams,
@@ -19,6 +20,7 @@ export default async function RolesPage({
         <div>
           <h1 className="text-2xl font-bold tracking-tight">角色管理</h1>
         </div>
+        <CreateRoleButton />
       </div>
       <Card>
         <CardHeader>

@@ -3,12 +3,41 @@
 import { db } from "@/db";
 import { roles } from "@/db/schema";
 import { count } from "drizzle-orm";
-import { DatabaseError, InvalidRoleInputError } from "./role-errors";
+import { DatabaseError, InvalidRoleInputError, RoleNameAlreadyExistsError } from "./role-errors";
+
+export type CreateRoleInput = typeof roles.$inferInsert
 
 /**
  * 角色服务层 - 处理业务逻辑、数据访问和异常转换
  */
 export const roleService = {
+  /**
+   * 创建新角色
+   */
+  async create(input: CreateRoleInput) {
+    if (!input.name?.trim()) {
+      throw new InvalidRoleInputError("name", "不能为空");
+    }
+
+    try {
+      const existing = await db.query.roles.findFirst({
+        where: { name: input.name },
+      });
+
+      if (existing) {
+        throw new RoleNameAlreadyExistsError(input.name);
+      }
+
+      const [role] = await db.insert(roles).values(input).returning();
+      return role;
+    } catch (error) {
+      if (error instanceof InvalidRoleInputError || error instanceof RoleNameAlreadyExistsError) {
+        throw error;
+      }
+      throw new DatabaseError("创建角色", error);
+    }
+  },
+
   /**
    * 分页查询角色
    */

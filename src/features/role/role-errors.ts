@@ -14,3 +14,13 @@ export class InvalidRoleInputError extends AppError {
     this.name = "InvalidRoleInputError";
   }
 }
+
+/**
+ * 角色名称已存在
+ */
+export class RoleNameAlreadyExistsError extends AppError {
+  constructor(name: string) {
+    super(`角色 "${name}" 已存在`, "ROLE_NAME_ALREADY_EXISTS", 409);
+    this.name = "RoleNameAlreadyExistsError";
+  }
+}
