@@ -1,7 +1,11 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
 import { Plus } from "lucide-react";
 import { addParentRoleAction } from "../role-action";
 
@@ -27,18 +31,14 @@ export function AddParentRoleForm({
   return (
     <form action={action} className="flex items-end gap-2">
       <input type="hidden" name="childRoleId" value={childRoleId} />
-      <select
-        name="parentRoleId"
-        required
-        className="h-8 w-full rounded-none border border-input bg-transparent px-2.5 text-xs outline-none focus-visible:border-ring focus-visible:ring-1 focus-visible:ring-ring/50 dark:bg-input/30"
-      >
-        <option value="">选择父角色...</option>
+      <NativeSelect name="parentRoleId" required size="sm">
+        <NativeSelectOption value="">选择父角色...</NativeSelectOption>
         {availableRoles.map((role) => (
-          <option key={role.id} value={role.id}>
+          <NativeSelectOption key={role.id} value={role.id}>
             {role.name}
-          </option>
+          </NativeSelectOption>
         ))}
-      </select>
+      </NativeSelect>
       <Button type="submit" size="sm" disabled={isPending}>
         <Plus className="mr-1 size-3.5" />
         添加
