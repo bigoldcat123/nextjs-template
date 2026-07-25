@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { KeyRound } from "lucide-react";
-import { ChangePasswordDialog } from "@/components/change-password-dialog";
+import { ChangePasswordDialog } from "@/components/user-nav/change-password-dialog";
 
 export function ChangePasswordMenuItem() {
   const [open, setOpen] = useState(false);

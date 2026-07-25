@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { UserPen } from "lucide-react";
-import { ProfileDialog } from "@/components/profile-dialog";
+import { ProfileDialog } from "@/components/user-nav/profile-dialog";
 
 export function EditProfileMenuItem() {
   const [open, setOpen] = useState(false);
