@@ -1,8 +1,8 @@
 import "server-only";
 
 import { db } from "@/db";
-import { roles, userRoles, users } from "@/db/schema";
-import { count, eq, inArray } from "drizzle-orm";
+import { userRoles, users } from "@/db/schema";
+import { count, eq } from "drizzle-orm";
 import {
   AppError,
   DatabaseError,
@@ -268,20 +268,7 @@ export const userService = {
     }
   },
 };
-async function findByUsernameOrThrow(username: string) {
-  try {
-    const user = await db.query.users.findFirst({ where: { username } });
-    if (!user) {
-      throw new UserNotFoundError(username);
-    }
-    return user;
-  } catch (e) {
-    if (e instanceof AppError) {
-      throw e;
-    }
-    throw new DatabaseError("找用户时候出错了");
-  }
-}
+
 async function findByIdOrThrow(id: string) {
   try {
     const user = await db.query.users.findFirst({ where: { id } });

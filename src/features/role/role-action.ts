@@ -106,7 +106,7 @@ export async function removeParentRoleAction(
           eq(roleHierarchy.childRoleId, childRoleId),
         ),
       );
-  } catch (e) {
+  } catch {
     return { status: "error", message: "取消继承失败" };
   }
 

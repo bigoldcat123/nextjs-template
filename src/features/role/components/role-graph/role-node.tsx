@@ -4,7 +4,7 @@ import { memo } from "react";
 import { BaseNode, BaseNodeContent } from "@/components/base-node";
 import { Handle, NodeProps, Position } from "@xyflow/react";
 
-export const RoleNode = memo(({ data }: NodeProps) => {
+export const RoleNode = memo(function RoleNode({ data }: NodeProps) {
   return (
     <BaseNode>
       <BaseNodeContent>{data.label as string}</BaseNodeContent>

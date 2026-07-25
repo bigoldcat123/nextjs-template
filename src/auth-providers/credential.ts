@@ -1,6 +1,4 @@
 import { db } from "@/db";
-import { users } from "@/db/schema";
-import { and, eq } from "drizzle-orm";
 import Credentials from "next-auth/providers/credentials";
 import { string, z } from "zod";
 const userSchema = z.object({
