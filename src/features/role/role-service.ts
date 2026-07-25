@@ -95,6 +95,36 @@ export const roleService = {
       throw new DatabaseError("获取分页信息", error);
     }
   },
+  /**
+   * 根据 ID 获取角色详情（含父角色）
+   */
+  async findById(roleId: string) {
+    try {
+      const role = await db.query.roles.findFirst({
+        where: { id: roleId },
+        with: {
+          parentRoles: true,
+        },
+      });
+      return role;
+    } catch (error) {
+      throw new DatabaseError("查询角色详情", error);
+    }
+  },
+
+  /**
+   * 获取所有角色（用于下拉选择）
+   */
+  async findAll() {
+    try {
+      return await db.query.roles.findMany({
+        orderBy: (roles, { asc }) => [asc(roles.name)],
+      });
+    } catch (error) {
+      throw new DatabaseError("查询所有角色", error);
+    }
+  },
+
   async getRoleGraph(roleId: string) {
     const res = await db.query.roles.findFirst({
       where: { id: roleId },

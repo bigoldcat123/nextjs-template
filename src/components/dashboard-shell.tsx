@@ -10,7 +10,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       <SidebarProvider>
         <AppSidebar />
         <main className="flex-1">
-          <div className="flex h-14 items-center border-b px-4">
+          <div className="flex h-14 items-center border-b px-4 sticky top-0">
             <SidebarTrigger />
           </div>
           <div className="p-6">{children}</div>
