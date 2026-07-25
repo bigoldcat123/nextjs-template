@@ -9,22 +9,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Users,UserKey } from "lucide-react";
+import { navItems } from "@/lib/nav-items";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const menuItems = [
-  {
-    title: "用户管理",
-    url: "/dashboard/users",
-    icon: Users,
-  },
-  {
-    title: "角色管理",
-    url: "/dashboard/role",
-    icon: UserKey,
-  },
-];
 
 export function AppSidebarContent() {
   const pathname = usePathname();
@@ -35,7 +22,7 @@ export function AppSidebarContent() {
         <SidebarGroupLabel>管理</SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            {menuItems.map((item) => (
+            {navItems.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
                   render={<Link href={item.url} />}
