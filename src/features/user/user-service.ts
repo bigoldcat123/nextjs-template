@@ -1,8 +1,8 @@
 import "server-only";
 
 import { db } from "@/db";
-import { users } from "@/db/schema";
-import { count, eq } from "drizzle-orm";
+import { roles, userRoles, users } from "@/db/schema";
+import { count, eq, inArray } from "drizzle-orm";
 import {
   AppError,
   DatabaseError,
@@ -92,12 +92,12 @@ export const userService = {
 
     try {
       const [usersResult, countResult] = await Promise.all([
-        db
-          .select()
-          .from(users)
-          .limit(pageSize)
-          .offset(offset)
-          .orderBy(users.createdAt),
+        db.query.users.findMany({
+          with: { roles: true },
+          limit: pageSize,
+          offset,
+          orderBy: (users, { asc }) => [asc(users.createdAt)],
+        }),
         db.select({ count: count() }).from(users),
       ]);
 
@@ -186,6 +186,43 @@ export const userService = {
         throw error;
       }
       throw new DatabaseError("删除用户", error);
+    }
+  },
+
+  /**
+   * 给用户挂载角色（全量替换：先清除旧角色，再写入新角色）
+   */
+  async assignRoles(userId: string, roleIds: string[]) {
+    // 先检查用户是否存在
+    await findByIdOrThrow(userId);
+
+    // 去重，避免同一角色重复挂载
+    const uniqueRoleIds = [...new Set(roleIds)];
+
+    // 校验所有角色都存在
+    if (uniqueRoleIds.length > 0) {
+      const existingRoles = await db.query.roles.findMany({
+        where: inArray(roles.id, uniqueRoleIds),
+      });
+      if (existingRoles.length !== uniqueRoleIds.length) {
+        throw new InvalidUserInputError("roleIds", "包含不存在的角色");
+      }
+    }
+
+    try {
+      await db.transaction(async (tx) => {
+        await tx.delete(userRoles).where(eq(userRoles.userId, userId));
+        if (uniqueRoleIds.length > 0) {
+          await tx.insert(userRoles).values(
+            uniqueRoleIds.map((roleId) => ({ userId, roleId })),
+          );
+        }
+      });
+    } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new DatabaseError("分配角色", error);
     }
   },
 

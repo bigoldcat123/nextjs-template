@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Users } from "lucide-react";
 import UserTable from "@/features/user/components/user-table";
 import { getPaginationInfo } from "@/features/user/user-query";
+import { getAllRoles } from "@/features/role/role-query";
 import { CreateUserButton } from "@/features/user/components/create-user-button";
 import { PaginationBar } from "@/components/pagination-bar";
 
@@ -15,6 +16,7 @@ export default async function UsersPage({
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const pageSize = Number(params.pageSize) || 10;
+  const roles = await getAllRoles();
 
   return (
     <div className="flex flex-col gap-6">
@@ -22,7 +24,7 @@ export default async function UsersPage({
         <div>
           <h1 className="text-2xl font-bold tracking-tight">用户管理</h1>
         </div>
-        <CreateUserButton />
+        <CreateUserButton roles={roles} />
       </div>
       <Card>
         <CardHeader>
@@ -32,7 +34,7 @@ export default async function UsersPage({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <UserTable page={page} pageSize={pageSize} />
+          <UserTable page={page} pageSize={pageSize} roles={roles} />
           <Suspense fallback={<PaginationBarSkeleton />}>
             <PaginationBar
               pageSize={pageSize}

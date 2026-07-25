@@ -6,7 +6,11 @@ import { Plus } from "lucide-react";
 import { UserFormDialog } from "./user-form-dialog";
 import { createUserAction } from "@/features/user/user-action";
 
-export function CreateUserButton() {
+export function CreateUserButton({
+  roles = [],
+}: {
+  roles?: { id: string; name: string }[];
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -19,6 +23,7 @@ export function CreateUserButton() {
         open={open}
         onOpenChangeAction={setOpen}
         onSubmitAction={createUserAction}
+        roles={roles}
       />
     </>
   );

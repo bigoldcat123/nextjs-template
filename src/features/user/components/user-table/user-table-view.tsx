@@ -29,6 +29,7 @@ type User = {
   displayName: string;
   profile: string | null;
   createdAt: Date;
+  roles: { id: string; name: string }[];
 };
 
 type UserTableViewProps = {
@@ -37,12 +38,14 @@ type UserTableViewProps = {
   page: number;
   pageSize: number;
   totalPages: number;
+  roles: { id: string; name: string }[];
   onUpdateAction: typeof updateUserAction;
   onDeleteAction: typeof deleteUserAction;
 };
 
 export function UserTableView({
   data,
+  roles,
   onUpdateAction,
   onDeleteAction,
 }: UserTableViewProps) {
@@ -68,6 +71,7 @@ export function UserTableView({
             <TableHead>用户</TableHead>
             <TableHead>用户名</TableHead>
             <TableHead>邮箱</TableHead>
+            <TableHead>角色</TableHead>
             <TableHead>注册时间</TableHead>
             <TableHead className="w-12">操作</TableHead>
           </TableRow>
@@ -97,6 +101,22 @@ export function UserTableView({
                 </TableCell>
                 <TableCell>{user.username}</TableCell>
                 <TableCell>{user.email || "-"}</TableCell>
+                <TableCell>
+                  {user.roles.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {user.roles.map((role) => (
+                        <span
+                          key={role.id}
+                          className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium"
+                        >
+                          {role.name}
+                        </span>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">-</span>
+                  )}
+                </TableCell>
                 <TableCell className="text-muted-foreground">
                   {new Date(user.createdAt).toLocaleDateString("zh-CN")}
                 </TableCell>
@@ -130,14 +150,17 @@ export function UserTableView({
 
       {selectedUser && (
         <UserFormDialog
+          key={selectedUser.id}
           open={editOpen}
           onOpenChangeAction={setEditOpen}
           onSubmitAction={onUpdateAction}
+          roles={roles}
           initialData={{
             username: selectedUser.username,
             email: selectedUser.email || undefined,
             displayName: selectedUser.displayName,
             id: selectedUser.id,
+            roleIds: selectedUser.roles.map((r) => r.id),
           }}
         />
       )}
