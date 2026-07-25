@@ -51,6 +51,7 @@ export async function createUserAction(preState: ActionState, formData: FormData
       console.error(e)
       return { status: "error", message: e.message };
     } else {
+      console.error(e)
       return { status: "error", message: "unknow Error!" };
     }
   }

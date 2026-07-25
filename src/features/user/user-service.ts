@@ -11,6 +11,7 @@ import {
   UserNotFoundError,
   UsernameAlreadyExistsError,
 } from "./user-errors";
+import { desc } from "drizzle-orm/pg-core/expressions";
 /**
  * 创建用户输入类型
  */
@@ -96,7 +97,7 @@ export const userService = {
           with: { roles: true },
           limit: pageSize,
           offset,
-          orderBy: (users, { asc }) => [asc(users.createdAt)],
+          orderBy: (users, { asc }) => [desc(users.createdAt),asc(users.username)],
         }),
         db.select({ count: count() }).from(users),
       ]);
@@ -202,7 +203,7 @@ export const userService = {
     // 校验所有角色都存在
     if (uniqueRoleIds.length > 0) {
       const existingRoles = await db.query.roles.findMany({
-        where: inArray(roles.id, uniqueRoleIds),
+        where: {id:{in:uniqueRoleIds}}
       });
       if (existingRoles.length !== uniqueRoleIds.length) {
         throw new InvalidUserInputError("roleIds", "包含不存在的角色");
