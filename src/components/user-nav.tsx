@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -11,10 +12,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
-import { LogOut } from "lucide-react";
+import { useTheme } from "next-themes";
+import { LogOut, Moon, Sun, Monitor } from "lucide-react";
 
 export function UserNav() {
   const { data: session } = useSession();
+  const { setTheme } = useTheme();
   const user = session?.user;
   const userName = user?.name || user?.email || "User";
   const userImage = user?.image || "";
@@ -45,22 +48,33 @@ export function UserNav() {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>
-          <div className="flex flex-col gap-1">
-            <span className="text-sm font-medium">{userName}</span>
-            {user?.email && (
-              <span className="text-xs text-muted-foreground">{user.email}</span>
-            )}
-          </div>
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium">{userName}</span>
+              {user?.email && (
+                <span className="text-xs text-muted-foreground">{user.email}</span>
+              )}
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          <Sun className="mr-2 size-4" />
+          <span>浅色模式</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          <Moon className="mr-2 size-4" />
+          <span>深色模式</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          <Monitor className="mr-2 size-4" />
+          <span>跟随系统</span>
+        </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          render={
-            <button
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="flex w-full cursor-pointer items-center"
-            />
-          }
+          variant="destructive"
+          onClick={() => signOut({ callbackUrl: "/login" })}
         >
           <LogOut className="mr-2 size-4" />
           <span>退出登录</span>
