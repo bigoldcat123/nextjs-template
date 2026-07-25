@@ -1,20 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { UserPen } from "lucide-react";
-import { ProfileDialog } from "@/components/user-nav/profile-dialog";
 
-export function EditProfileMenuItem() {
-  const [open, setOpen] = useState(false);
+type EditProfileMenuItemProps = {
+  onOpen: () => void;
+};
 
+export function EditProfileMenuItem({ onOpen }: EditProfileMenuItemProps) {
   return (
-    <>
-      <DropdownMenuItem onClick={() => setOpen(true)}>
-        <UserPen className="mr-2 size-4" />
-        <span>修改个人信息</span>
-      </DropdownMenuItem>
-      <ProfileDialog open={open} onOpenChangeAction={setOpen} />
-    </>
+    <DropdownMenuItem onClick={onOpen}>
+      <UserPen className="mr-2 size-4" />
+      <span>修改个人信息</span>
+    </DropdownMenuItem>
   );
 }

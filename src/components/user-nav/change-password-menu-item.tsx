@@ -1,20 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { KeyRound } from "lucide-react";
-import { ChangePasswordDialog } from "@/components/user-nav/change-password-dialog";
 
-export function ChangePasswordMenuItem() {
-  const [open, setOpen] = useState(false);
+type ChangePasswordMenuItemProps = {
+  onOpen: () => void;
+};
 
+export function ChangePasswordMenuItem({ onOpen }: ChangePasswordMenuItemProps) {
   return (
-    <>
-      <DropdownMenuItem onClick={() => setOpen(true)}>
-        <KeyRound className="mr-2 size-4" />
-        <span>修改密码</span>
-      </DropdownMenuItem>
-      <ChangePasswordDialog open={open} onOpenChangeAction={setOpen} />
-    </>
+    <DropdownMenuItem onClick={onOpen}>
+      <KeyRound className="mr-2 size-4" />
+      <span>修改密码</span>
+    </DropdownMenuItem>
   );
 }

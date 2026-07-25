@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -15,6 +16,8 @@ import { LogOut } from "lucide-react";
 import { EditProfileMenuItem } from "./edit-profile-menu-item";
 import { ChangePasswordMenuItem } from "./change-password-menu-item";
 import { ThemeMenuItems } from "./theme-menu-items";
+import { ProfileDialog } from "./profile-dialog";
+import { ChangePasswordDialog } from "./change-password-dialog";
 
 type UserNavViewProps = {
   userName: string;
@@ -29,6 +32,9 @@ export function UserNavView({
   userEmail,
   userDisplayname,
 }: UserNavViewProps) {
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
+
   const initials = userName
     .split(" ")
     .map((n) => n[0])
@@ -66,8 +72,8 @@ export function UserNavView({
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <EditProfileMenuItem />
-        <ChangePasswordMenuItem />
+        <EditProfileMenuItem onOpen={() => setProfileOpen(true)} />
+        <ChangePasswordMenuItem onOpen={() => setPasswordOpen(true)} />
         <DropdownMenuSeparator />
         <ThemeMenuItems />
         <DropdownMenuSeparator />
@@ -79,6 +85,9 @@ export function UserNavView({
           <span>退出登录</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
+
+      <ProfileDialog open={profileOpen} onOpenChangeAction={setProfileOpen} />
+      <ChangePasswordDialog open={passwordOpen} onOpenChangeAction={setPasswordOpen} />
     </DropdownMenu>
   );
 }
