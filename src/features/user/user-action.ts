@@ -23,6 +23,15 @@ const updateUserSchema = z.object({
   id: z.string("ID 不可为空"),
 });
 
+/**
+ * 从 FormData 中提取选中的角色 ID 列表（多选框 name="roleIds"）
+ */
+function parseRoleIds(formData: FormData): string[] {
+  return formData
+    .getAll("roleIds")
+    .filter((v): v is string => typeof v === "string" && v.length > 0);
+}
+
 export async function createUserAction(preState: ActionState, formData: FormData): Promise<ActionState> {
 
   const result = createUserSchema.safeParse(
@@ -35,7 +44,8 @@ export async function createUserAction(preState: ActionState, formData: FormData
   }
 
   try {
-    await userService.create(result.data);
+    const user = await userService.create(result.data);
+    await userService.assignRoles(user.id, parseRoleIds(formData));
   } catch (e) {
     if (e instanceof AppError) {
       console.error(e)
@@ -63,6 +73,7 @@ export async function updateUserAction(preState: ActionState, formData: FormData
 
   try {
     await userService.update(d);
+    await userService.assignRoles(d.id, parseRoleIds(formData));
   } catch (e) {
     if (e instanceof AppError) {
       return { status: "error", message: e.message };

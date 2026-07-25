@@ -18,11 +18,13 @@ type UserFormDialogProps = {
   open: boolean;
   onOpenChangeAction: (open: boolean) => void;
   onSubmitAction: typeof updateUserAction | typeof createUserAction;
+  roles?: { id: string; name: string }[];
   initialData?: {
     id: string;
     username: string;
     email?: string;
     displayName?: string;
+    roleIds?: string[];
   };
 };
 
@@ -30,6 +32,7 @@ export function UserFormDialog({
   open,
   onOpenChangeAction,
   onSubmitAction,
+  roles = [],
   initialData,
 }: UserFormDialogProps) {
   const isEdit = !!initialData;
@@ -90,6 +93,28 @@ export function UserFormDialog({
                 required={!isEdit}
               />
             </div>
+            {roles.length > 0 && (
+              <div className="grid gap-2">
+                <Label>角色</Label>
+                <div className="flex flex-wrap gap-2">
+                  {roles.map((role) => (
+                    <label
+                      key={role.id}
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-1.5 text-sm transition-colors hover:bg-accent has-checked:border-primary has-checked:bg-primary/10"
+                    >
+                      <input
+                        type="checkbox"
+                        name="roleIds"
+                        value={role.id}
+                        defaultChecked={initialData?.roleIds?.includes(role.id)}
+                        className="size-4 accent-primary"
+                      />
+                      {role.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           <Input hidden name="id" defaultValue={initialData?.id} />
           <DialogFooter>
