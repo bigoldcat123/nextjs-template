@@ -7,7 +7,12 @@ import { cacheTag } from "next/cache";
 /**
  * 分页查询用户
  */
-export async function getUsersPaginated(page: number = 1, pageSize: number = 10) {
+export async function getUsersPaginated(
+  page: number = 1,
+  pageSize: number = 10,
+) {
+  "use cache";
+  cacheTag("users");
   await sleep(1000);
   return await userService.findPaginated(page, pageSize);
 }
