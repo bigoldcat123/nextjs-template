@@ -31,7 +31,7 @@ export function AddParentRoleForm({
   return (
     <form action={action} className="flex items-end gap-2">
       <input type="hidden" name="childRoleId" value={childRoleId} />
-      <NativeSelect name="parentRoleId" required size="sm">
+      <NativeSelect name="parentRoleId"  required size="default">
         <NativeSelectOption value="">选择父角色...</NativeSelectOption>
         {availableRoles.map((role) => (
           <NativeSelectOption key={role.id} value={role.id}>

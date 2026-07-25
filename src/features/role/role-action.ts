@@ -7,6 +7,7 @@ import { AppError } from "./role-errors";
 import type { ActionState } from "@/types";
 import { db } from "@/db";
 import { roleHierarchy } from "@/db/schema";
+import { and, eq } from "drizzle-orm";
 
 const createRoleSchema = z.object({
   name: z.string().min(1, "角色名称不能为空").max(100, "角色名称不能超过100个字符"),
@@ -90,4 +91,26 @@ export async function addParentRoleAction(
   updateTag("roles");
   revalidatePath(`/dashboard/role/${childRoleId}`);
   return { status: "ok", message: "添加成功" };
+}
+
+export async function removeParentRoleAction(
+  childRoleId: string,
+  parentRoleId: string,
+): Promise<ActionState> {
+  try {
+    await db
+      .delete(roleHierarchy)
+      .where(
+        and(
+          eq(roleHierarchy.parentRoleId, parentRoleId),
+          eq(roleHierarchy.childRoleId, childRoleId),
+        ),
+      );
+  } catch (e) {
+    return { status: "error", message: "取消继承失败" };
+  }
+
+  updateTag("roles");
+  revalidatePath(`/dashboard/role/${childRoleId}`);
+  return { status: "ok", message: "已取消继承" };
 }

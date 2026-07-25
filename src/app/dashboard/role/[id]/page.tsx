@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import RoleGraph from "@/features/role/components/role-graph";
 import { AddParentRoleForm } from "@/features/role/components/add-parent-role-form";
+import { ParentRoleBadges } from "@/features/role/components/parent-role-badges";
 import { UserKey, GitBranch } from "lucide-react";
 import { getRoleById, getAllRoles } from "@/features/role/role-query";
 import { notFound } from "next/navigation";
@@ -38,20 +39,10 @@ export default async function RoleDetailPage({
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
-          {role.parentRoles.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {role.parentRoles.map((parent) => (
-                <span
-                  key={parent.id}
-                  className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium"
-                >
-                  {parent.name}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">暂无父角色</p>
-          )}
+          <ParentRoleBadges
+            childRoleId={id}
+            parentRoles={role.parentRoles}
+          />
 
           <AddParentRoleForm
             childRoleId={id}
