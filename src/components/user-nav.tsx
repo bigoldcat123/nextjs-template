@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -13,11 +14,15 @@ import {
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
-import { LogOut, Moon, Sun, Monitor } from "lucide-react";
+import { LogOut, Moon, Sun, Monitor, UserPen, KeyRound } from "lucide-react";
+import { ProfileDialog } from "@/components/profile-dialog";
+import { ChangePasswordDialog } from "@/components/change-password-dialog";
 
 export function UserNav() {
   const { data: session } = useSession();
   const { setTheme } = useTheme();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
   const user = session?.user;
   const userName = user?.name || user?.email || "User";
   const userImage = user?.image || "";
@@ -59,6 +64,15 @@ export function UserNav() {
           </DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setProfileOpen(true)}>
+          <UserPen className="mr-2 size-4" />
+          <span>修改个人信息</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setPasswordOpen(true)}>
+          <KeyRound className="mr-2 size-4" />
+          <span>修改密码</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => setTheme("light")}>
           <Sun className="mr-2 size-4" />
           <span>浅色模式</span>
@@ -80,6 +94,9 @@ export function UserNav() {
           <span>退出登录</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
+
+      <ProfileDialog open={profileOpen} onOpenChangeAction={setProfileOpen} />
+      <ChangePasswordDialog open={passwordOpen} onOpenChangeAction={setPasswordOpen} />
     </DropdownMenu>
   );
 }

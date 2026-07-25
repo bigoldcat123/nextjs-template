@@ -45,3 +45,13 @@ export class InvalidUserInputError extends AppError {
     this.name = "InvalidUserInputError";
   }
 }
+
+/**
+ * 当前密码错误
+ */
+export class WrongPasswordError extends AppError {
+  constructor() {
+    super("当前密码错误", "WRONG_PASSWORD", 401);
+    this.name = "WrongPasswordError";
+  }
+}

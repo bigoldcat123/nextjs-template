@@ -102,3 +102,90 @@ export async function deleteUserAction(id:string): Promise<ActionState> {
   revalidatePath("/dashboard/users");
   return { status: "ok", message: "删除成功" };
 }
+
+// ── 个人信息修改 ──
+
+const updateProfileSchema = z.object({
+  displayName: z.string().min(1, "显示名不能为空"),
+  email: z.email("邮箱格式不正确").optional().or(z.literal("")),
+});
+
+export async function updateProfileAction(
+  preState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) {
+    return { status: "error", message: "未登录" };
+  }
+
+  const result = updateProfileSchema.safeParse(
+    Object.fromEntries(formData.entries()),
+  );
+
+  if (!result.success) {
+    return { status: "error", message: result.error.issues[0].message };
+  }
+
+  try {
+    await userService.update({
+      id: userId,
+      displayName: result.data.displayName,
+      email: result.data.email || undefined,
+    });
+  } catch (e) {
+    if (e instanceof AppError) {
+      return { status: "error", message: e.message };
+    }
+    return { status: "error", message: "更新失败" };
+  }
+
+  updateTag("users");
+  return { status: "ok", message: "修改成功" };
+}
+
+// ── 修改密码 ──
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "请输入当前密码"),
+  newPassword: z.string().min(6, "新密码至少6位"),
+  confirmPassword: z.string().min(1, "请确认新密码"),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "两次输入的密码不一致",
+  path: ["confirmPassword"],
+});
+
+export async function changePasswordAction(
+  preState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) {
+    return { status: "error", message: "未登录" };
+  }
+
+  const result = changePasswordSchema.safeParse(
+    Object.fromEntries(formData.entries()),
+  );
+
+  if (!result.success) {
+    return { status: "error", message: result.error.issues[0].message };
+  }
+
+  try {
+    await userService.changePassword(
+      userId,
+      result.data.currentPassword,
+      result.data.newPassword,
+    );
+  } catch (e) {
+    if (e instanceof AppError) {
+      return { status: "error", message: e.message };
+    }
+    return { status: "error", message: "修改密码失败" };
+  }
+
+  return { status: "ok", message: "密码修改成功" };
+}

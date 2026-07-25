@@ -10,6 +10,7 @@ import {
   InvalidUserInputError,
   UserNotFoundError,
   UsernameAlreadyExistsError,
+  WrongPasswordError,
 } from "./user-errors";
 import { desc } from "drizzle-orm/pg-core/expressions";
 /**
@@ -224,6 +225,26 @@ export const userService = {
         throw error;
       }
       throw new DatabaseError("分配角色", error);
+    }
+  },
+
+  /**
+   * 修改密码（验证当前密码后更新）
+   */
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await findByIdOrThrow(userId);
+
+    if (user.password !== currentPassword) {
+      throw new WrongPasswordError();
+    }
+
+    try {
+      await db
+        .update(users)
+        .set({ password: newPassword })
+        .where(eq(users.id, userId));
+    } catch (error) {
+      throw new DatabaseError("修改密码", error);
     }
   },
 
