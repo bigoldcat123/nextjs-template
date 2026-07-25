@@ -1,5 +1,3 @@
-"use client";
-
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { AppBreadcrumbs } from "@/components/breadcrumbs";
