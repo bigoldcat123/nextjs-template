@@ -114,3 +114,33 @@ export async function removeParentRoleAction(
   revalidatePath(`/dashboard/role/${childRoleId}`);
   return { status: "ok", message: "已取消继承" };
 }
+/**
+ * 保存角色的权限配置（全量替换：勾选 = 挂载，取消勾选 = 移除）
+ */
+export async function saveRolePermissionsAction(
+  preState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const roleId = formData.get("roleId");
+  if (typeof roleId !== "string" || !roleId) {
+    return { status: "error", message: "缺少角色 ID" };
+  }
+
+  const permissionIds = formData
+    .getAll("permissionIds")
+    .filter((v): v is string => typeof v === "string" && v.length > 0);
+
+  try {
+    await roleService.assignPermissions(roleId, permissionIds);
+  } catch (e) {
+    if (e instanceof AppError) {
+      return { status: "error", message: e.message };
+    }
+    return { status: "error", message: "保存权限失败" };
+  }
+
+  updateTag("roles");
+  updateTag("permissions")
+  revalidatePath(`/dashboard/role/${roleId}`);
+  return { status: "ok", message: "权限已更新" };
+}

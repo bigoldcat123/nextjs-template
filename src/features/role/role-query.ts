@@ -41,3 +41,11 @@ export async function getRoleById(roleId: string) {
 export async function getAllRoles() {
   return roleService.findAll();
 }
+/**
+ * 获取所有权限（用于角色权限配置）
+ */
+export async function getAllPermissions() {
+  'use cache'
+  cacheTag("permissions")
+  return roleService.findAllPermissions();
+}

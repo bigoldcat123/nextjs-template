@@ -1,9 +1,14 @@
 // import "server-only";
 
 import { db } from "@/db";
-import { roles } from "@/db/schema";
-import { count } from "drizzle-orm";
-import { DatabaseError, InvalidRoleInputError, RoleNameAlreadyExistsError } from "./role-errors";
+import { permissions, rolePermissions, roles } from "@/db/schema";
+import { count, eq } from "drizzle-orm";
+import {
+  DatabaseError,
+  InvalidRoleInputError,
+  RoleNameAlreadyExistsError,
+  RoleNotFoundError,
+} from "./role-errors";
 
 export type CreateRoleInput = typeof roles.$inferInsert
 
@@ -104,6 +109,7 @@ export const roleService = {
         where: { id: roleId },
         with: {
           parentRoles: true,
+          permissions: true,
         },
       });
       return role;
@@ -145,5 +151,61 @@ export const roleService = {
       edges.push(...nextEdges);
     }
     return { nodes, edges };
+  },
+  /**
+   * 获取所有权限（用于角色权限配置）
+   */
+  async findAllPermissions() {
+    try {
+      return await db.query.permissions.findMany({
+        orderBy: (permissions, { asc }) => [
+          asc(permissions.resource),
+          asc(permissions.action),
+        ],
+      });
+    } catch (error) {
+      throw new DatabaseError("查询所有权限", error);
+    }
+  },
+
+  /**
+   * 给角色挂载权限（全量替换：先清除旧权限，再写入新权限）
+   */
+  async assignPermissions(roleId: string, permissionIds: string[]) {
+    const role = await db.query.roles.findFirst({ where: { id: roleId } });
+    if (!role) {
+      throw new RoleNotFoundError(roleId);
+    }
+
+    // 去重，避免同一权限重复挂载
+    const uniquePermissionIds = [...new Set(permissionIds)];
+
+    // 校验所有权限都存在
+    if (uniquePermissionIds.length > 0) {
+      const existingPermissions = await db.query.permissions.findMany({
+        where: { id: { in: uniquePermissionIds } },
+      });
+      if (existingPermissions.length !== uniquePermissionIds.length) {
+        throw new InvalidRoleInputError("permissionIds", "包含不存在的权限");
+      }
+    }
+
+    try {
+      await db.transaction(async (tx) => {
+        await tx
+          .delete(rolePermissions)
+          .where(eq(rolePermissions.roleId, roleId));
+        if (uniquePermissionIds.length > 0) {
+          await tx.insert(rolePermissions).values(
+            uniquePermissionIds.map((permissionId) => ({
+              roleId,
+              permissionId,
+            })),
+          );
+        }
+      });
+    } catch (error) {
+      throw new DatabaseError("分配权限", error);
+    }
   },
 };

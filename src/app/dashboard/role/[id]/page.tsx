@@ -3,14 +3,19 @@ import RoleGraph from "@/features/role/components/role-graph";
 import { AddParentRoleForm } from "@/features/role/components/add-parent-role-form";
 import { ParentRoleBadges } from "@/features/role/components/parent-role-badges";
 import { UserKey, GitBranch } from "lucide-react";
-import { getRoleById, getAllRoles } from "@/features/role/role-query";
 import { notFound } from "next/navigation";
+import { RolePermissionsCard } from "@/features/role/components/role-permissions-card";
+import { getAllPermissions, getAllRoles, getRoleById } from "@/features/role/role-query";
 
 export default async function RoleDetailPage({
   params,
 }: PageProps<"/dashboard/role/[id]">) {
   const { id } = await params;
-  const [role, allRoles] = await Promise.all([getRoleById(id), getAllRoles()]);
+  const [role, allRoles, allPermissions] = await Promise.all([
+    getRoleById(id),
+    getAllRoles(),
+    getAllPermissions(),
+  ]);
 
   if (!role) {
     notFound();
@@ -50,6 +55,11 @@ export default async function RoleDetailPage({
           />
         </CardContent>
       </Card>
+      <RolePermissionsCard
+        roleId={id}
+        permissions={allPermissions}
+        currentPermissionIds={role.permissions.map((p) => p.id)}
+      />
 
       <Card>
         <CardHeader>

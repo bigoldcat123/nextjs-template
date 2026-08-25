@@ -24,3 +24,13 @@ export class RoleNameAlreadyExistsError extends AppError {
     this.name = "RoleNameAlreadyExistsError";
   }
 }
+/**
+ * 角色不存在
+ */
+export class RoleNotFoundError extends AppError {
+  constructor(roleId?: string) {
+    const message = roleId ? `角色不存在: ${roleId}` : "角色不存在";
+    super(message, "ROLE_NOT_FOUND", 404);
+    this.name = "RoleNotFoundError";
+  }
+}
